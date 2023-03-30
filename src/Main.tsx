@@ -1,18 +1,42 @@
 import React, {useEffect, useState} from 'react';
-import {StyleSheet, View, PermissionsAndroid} from 'react-native';
+import {StyleSheet, View, Platform} from 'react-native';
 import {Colors, IconButton, Title} from 'react-native-paper';
+import {requestMultiple, PERMISSIONS, RESULTS} from 'react-native-permissions';
 
 import {getDateTime} from './utils/getDateTime';
-// import {sendFile} from './utils/sendFile';
+import {sendFile} from './utils/sendFile';
 
 const Main = () => {
   const [trees, setTrees] = useState<{key: string}[]>([]);
+  const [granted, setGranted] = useState<boolean>(true);
 
   const getPermissions = async () => {
     try {
-      let permission = PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE;
-      await PermissionsAndroid.request(permission);
-      Promise.resolve();
+      const statuses = await requestMultiple(
+        Platform.OS === 'ios'
+          ? [
+              PERMISSIONS.IOS.PHOTO_LIBRARY,
+              PERMISSIONS.IOS.PHOTO_LIBRARY_ADD_ONLY,
+              PERMISSIONS.IOS.CAMERA,
+            ]
+          : [
+              PERMISSIONS.ANDROID.WRITE_EXTERNAL_STORAGE,
+              PERMISSIONS.ANDROID.CAMERA,
+            ],
+      );
+      if (Platform.OS === 'ios') {
+        console.log(statuses);
+        if (statuses[PERMISSIONS.IOS.CAMERA] !== RESULTS.GRANTED) {
+          setGranted(false);
+          console.log('granted: false');
+        }
+      } else {
+        console.log(statuses);
+        if (statuses[PERMISSIONS.ANDROID.CAMERA] !== RESULTS.GRANTED) {
+          setGranted(false);
+          console.log('granted: false');
+        }
+      }
     } catch (error) {
       Promise.reject(error);
     }
@@ -44,7 +68,7 @@ const Main = () => {
           icon="email-fast"
           color={Colors.green500}
           size={60}
-          // onPress={() => sendFile(trees)}
+          onPress={() => sendFile(trees)}
         />
       </View>
 
