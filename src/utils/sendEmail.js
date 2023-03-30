@@ -5,7 +5,7 @@ export const sendEmail = externalPath => {
   Mailer.mail(
     {
       subject: 'report',
-      recipients: ['glieutier@sensordata.com.uy'],
+      recipients: ['raulglezrdguez69@gmail.com'],
       body: 'Report',
       isHTML: false,
       attachments: [
